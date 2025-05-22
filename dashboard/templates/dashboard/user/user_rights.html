@@ -1,0 +1,568 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}User Rights Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard/user/rights.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">User Rights Management</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Alerts -->
+                    <div class="alert alert-success" style="display: none;"></div>
+                    <div class="alert alert-error" style="display: none;"></div>
+
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs" id="rightsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="menu-rights-tab" data-bs-toggle="tab" data-bs-target="#menu-rights" type="button" role="tab" aria-controls="menu-rights" aria-selected="true">
+                                <i class="fas fa-list"></i> Menu Rights
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="branch-dept-rights-tab" data-bs-toggle="tab" data-bs-target="#branch-dept-rights" type="button" role="tab" aria-controls="branch-dept-rights" aria-selected="false">
+                                <i class="fas fa-sitemap"></i> Branch & Department Rights
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="rightsTabsContent">
+                        <!-- Menu Rights Tab -->
+                        <div class="tab-pane fade show active" id="menu-rights" role="tabpanel" aria-labelledby="menu-rights-tab">
+                            <div class="user-search">
+                                <label for="userSelect">Select User:</label>
+                                <select id="userSelect" class="form-control">
+                                    <option value="">-- Select User --</option>
+                                    {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.get_full_name }} ({{ user.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="loading" id="loadingSpinner">
+                                <div class="loading-spinner"></div>
+                                <p>Loading permissions...</p>
+                            </div>
+
+                            <form id="permissionsForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" id="userId">
+                                
+                                <div class="select-all-container">
+                                    <button type="button" class="select-all-btn" id="selectAllBtn">
+                                        <i class="fas fa-check-square"></i> Select All Permissions
+                                    </button>
+                                </div>
+
+                                <!-- Menu Access Permissions -->
+                                <div class="permission-container">
+                                    <!-- Data Management Section -->
+                                    <div class="permission-section">
+                                        <div class="permission-header" data-section="data">
+                                            <h4><i class="fas fa-database section-icon"></i>Data Management</h4>
+                                            <i class="fas fa-chevron-down toggle-icon"></i>
+                                        </div>
+                                        <div class="permission-content" data-section="data">
+                                            <div class="permission-group">
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_data" class="permission-checkbox parent-checkbox" data-section="data">
+                                                    <span class="permission-label">Access Data Management</span>
+                                                </div>
+                                                <div class="permission-description">Enable access to all data management features</div>
+                                            </div>
+                                            <div class="permission-group child-permissions" data-parent="data">
+                                                <!-- Data Entry -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_data_entry" class="permission-checkbox child-checkbox" data-parent="data">
+                                                    <span class="permission-label">Data Entry</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_data_entry" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_data_entry" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_data_entry" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_data_entry" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Data Edit -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_data_edit" class="permission-checkbox child-checkbox" data-parent="data">
+                                                    <span class="permission-label">Data Edit</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_data_edit" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_data_edit" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_data_edit" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_data_edit" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Enquiry -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_enquiry" class="permission-checkbox child-checkbox" data-parent="data">
+                                                    <span class="permission-label">Enquiry</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_enquiry" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_enquiry" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_enquiry" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_enquiry" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Setup Section -->
+                                    <div class="permission-section">
+                                        <div class="permission-header" data-section="setup">
+                                            <h4><i class="fas fa-cogs section-icon"></i>Setup</h4>
+                                            <i class="fas fa-chevron-down toggle-icon"></i>
+                                        </div>
+                                        <div class="permission-content" data-section="setup">
+                                            <div class="permission-group">
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_setup" class="permission-checkbox parent-checkbox" data-section="setup">
+                                                    <span class="permission-label">Access Setup</span>
+                                                </div>
+                                                <div class="permission-description">Enable access to all setup features</div>
+                                            </div>
+                                            <div class="permission-group child-permissions" data-parent="setup">
+                                                <!-- Department -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_department" class="permission-checkbox child-checkbox" data-parent="setup">
+                                                    <span class="permission-label">Department</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_department" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_department" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_department" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_department" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Sub Department -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_sub_department" class="permission-checkbox child-checkbox" data-parent="setup">
+                                                    <span class="permission-label">Sub Department</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_sub_department" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_sub_department" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_sub_department" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_sub_department" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Division & Branch -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_division_branch" class="permission-checkbox child-checkbox" data-parent="setup">
+                                                    <span class="permission-label">Division & Branch</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_division_branch" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_division_branch" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_division_branch" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_division_branch" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Branch-Department Link -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_branch_dep_link" class="permission-checkbox child-checkbox" data-parent="setup">
+                                                    <span class="permission-label">Branch-Department Link</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_branch_dep_link" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_branch_dep_link" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_branch_dep_link" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_branch_dep_link" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Logo Upload -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_logo_upload" class="permission-checkbox child-checkbox" data-parent="setup">
+                                                    <span class="permission-label">Logo Upload</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_logo_upload" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_logo_upload" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_logo_upload" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_logo_upload" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Bulk Upload -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_bulk_upload" class="permission-checkbox child-checkbox" data-parent="setup">
+                                                    <span class="permission-label">Bulk Upload</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_bulk_upload" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_bulk_upload" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_bulk_upload" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_bulk_upload" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- User Management Section -->
+                                    <div class="permission-section">
+                                        <div class="permission-header" data-section="user">
+                                            <h4><i class="fas fa-users section-icon"></i>User Management</h4>
+                                            <i class="fas fa-chevron-down toggle-icon"></i>
+                                        </div>
+                                        <div class="permission-content" data-section="user">
+                                            <div class="permission-group">
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_user" class="permission-checkbox parent-checkbox" data-section="user">
+                                                    <span class="permission-label">Access User Management</span>
+                                                </div>
+                                                <div class="permission-description">Enable access to all user management features</div>
+                                            </div>
+                                            <div class="permission-group child-permissions" data-parent="user">
+                                                <!-- Users -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_users" class="permission-checkbox child-checkbox" data-parent="user">
+                                                    <span class="permission-label">Users</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_users" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_users" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_users" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_users" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- User Rights -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_user_rights" class="permission-checkbox child-checkbox" data-parent="user">
+                                                    <span class="permission-label">User Rights</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_user_rights" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_user_rights" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_user_rights" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_user_rights" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Change Password -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_password_change" class="permission-checkbox child-checkbox" data-parent="user">
+                                                    <span class="permission-label">Change Password</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_password_change" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_password_change" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_password_change" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_password_change" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reports Section -->
+                                    <div class="permission-section">
+                                        <div class="permission-header" data-section="report">
+                                            <h4><i class="fas fa-chart-bar section-icon"></i>Reports</h4>
+                                            <i class="fas fa-chevron-down toggle-icon"></i>
+                                        </div>
+                                        <div class="permission-content" data-section="report">
+                                            <div class="permission-group">
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_report" class="permission-checkbox parent-checkbox" data-section="report">
+                                                    <span class="permission-label">Access Reports</span>
+                                                </div>
+                                                <div class="permission-description">Enable access to all report features</div>
+                                            </div>
+                                            <div class="permission-group child-permissions" data-parent="report">
+                                                <!-- Log Report -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_log_report" class="permission-checkbox child-checkbox" data-parent="report">
+                                                    <span class="permission-label">Log Report</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_log_report" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_log_report" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_log_report" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_log_report" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Register -->
+                                                <div class="permission-item">
+                                                    <input type="checkbox" name="permissions[]" value="can_access_register" class="permission-checkbox child-checkbox" data-parent="report">
+                                                    <span class="permission-label">Register</span>
+                                                </div>
+                                                <div class="crud-operations">
+                                                    <div class="crud-header">Operations</div>
+                                                    <div class="crud-grid">
+                                                        <div class="permission-item" data-operation="view">
+                                                            <input type="checkbox" name="permissions[]" value="can_view_register" class="permission-checkbox">
+                                                            <span class="permission-label">View</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="create">
+                                                            <input type="checkbox" name="permissions[]" value="can_create_register" class="permission-checkbox">
+                                                            <span class="permission-label">Create</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="delete">
+                                                            <input type="checkbox" name="permissions[]" value="can_delete_register" class="permission-checkbox">
+                                                            <span class="permission-label">Delete</span>
+                                                        </div>
+                                                        <div class="permission-item" data-operation="update">
+                                                            <input type="checkbox" name="permissions[]" value="can_update_register" class="permission-checkbox">
+                                                            <span class="permission-label">Update</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-save" id="saveButton" disabled>Save Permissions</button>
+                            </form>
+                        </div>
+
+                        <!-- Branch & Department Rights Tab -->
+                        <div class="tab-pane fade" id="branch-dept-rights" role="tabpanel" aria-labelledby="branch-dept-rights-tab">
+                            <!-- Alerts -->
+                            <div class="alert alert-success" id="branchDeptSuccessAlert" style="display: none;"></div>
+                            <div class="alert alert-error" id="branchDeptErrorAlert" style="display: none;"></div>
+
+                            <div class="user-search">
+                                <label for="branchDeptUserSelect">Select User:</label>
+                                <select id="branchDeptUserSelect" class="form-control">
+                                    <option value="">-- Select User --</option>
+                                    {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.get_full_name }} ({{ user.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="loading" id="branchDeptLoadingSpinner">
+                                <div class="loading-spinner"></div>
+                                <p>Loading branch and department mappings...</p>
+                            </div>
+
+                            <form id="branchDeptForm">
+                                <input type="hidden" name="user_id" id="branchDeptUserId">
+                                
+                                <div class="branch-dept-container">
+                                    <div class="branch-list">
+                                        <!-- Branches will be loaded here -->
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-save" id="saveBranchDeptButton" disabled>Save Branch & Department Mappings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/api/permissions.js' %}"></script>
+<script src="{% static 'js/dashboard/user/rights.js' %}"></script>
+<script src="{% static 'js/dashboard/user/branch-dept-rights.js' %}"></script>
+{% endblock %} 

@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CDMS{% endblock %}</title>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'fontawesome/css/all.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/alerts.css' %}">
+    {% block extra_css %}{% endblock %}
+    {% csrf_token %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'dashboard_home' %}">
+                <i class="fas fa-tachometer-alt me-2"></i>CDMS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_authenticated %}
+                        <!-- Dashboard -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard_home' %}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                        </li>
+
+                        <!-- Data Management -->
+                        {% if user.can_access_data %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="dataManagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-database me-1"></i>Data Management
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dataManagementDropdown">
+                                {% if user.can_access_data_entry %}
+                                <li><a class="dropdown-item" href="{% url 'data_entry' %}"><i class="fas fa-file-import me-2"></i>Data Entry</a></li>
+                                {% endif %}
+                                {% if user.can_access_data_edit %}
+                                <li><a class="dropdown-item" href="{% url 'data_edit' %}"><i class="fas fa-edit me-2"></i>Data</a></li>
+                                {% endif %}
+                                {% comment %} {% if user.can_access_enquiry %}
+                                <li><a class="dropdown-item" href="{% url 'enquiry' %}"><i class="fas fa-search me-2"></i>Enquiry</a></li>
+                                {% endif %} {% endcomment %}
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        <!-- Setup -->
+                        {% if user.can_access_setup %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="setupDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cogs me-1"></i>Setup
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="setupDropdown">
+                                {% if user.can_access_department %}
+                                <li><a class="dropdown-item" href="{% url 'department' %}"><i class="fas fa-building me-2"></i>Department</a></li>
+                                {% endif %}
+                                {% if user.can_access_sub_department %}
+                                <li><a class="dropdown-item" href="{% url 'sub_department' %}"><i class="fas fa-sitemap me-2"></i>Sub Department</a></li>
+                                {% endif %}
+                                {% if user.can_access_division_branch %}
+                                <li><a class="dropdown-item" href="{% url 'division_branch' %}"><i class="fas fa-code-branch me-2"></i>Division & Branch</a></li>
+                                {% endif %}
+                                {% if user.can_access_branch_dep_link %}
+                                <li><a class="dropdown-item" href="{% url 'branch_dep_link' %}"><i class="fas fa-link me-2"></i>Branch-Department Link</a></li>
+                                {% endif %}
+                                {% if user.can_access_logo_upload %}
+                                <li><a class="dropdown-item" href="{% url 'logo_upload' %}"><i class="fas fa-image me-2"></i>Logo Upload</a></li>
+                                {% endif %}
+                                {% if user.can_access_bulk_upload %}
+                                <li><a class="dropdown-item" href="{% url 'bulk_upload' %}"><i class="fas fa-upload me-2"></i>Bulk Upload</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        <!-- User Management -->
+                        {% if user.can_access_user %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userManagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-users me-1"></i>User Management
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="userManagementDropdown">
+                                {% if user.can_access_users %}
+                                <li><a class="dropdown-item" href="{% url 'users' %}"><i class="fas fa-user me-2"></i>Users</a></li>
+                                {% endif %}
+                                {% if user.can_access_user_rights %}
+                                <li><a class="dropdown-item" href="{% url 'user_rights' %}"><i class="fas fa-user-shield me-2"></i>User Rights</a></li>
+                                {% endif %}
+                                {% if user.can_access_password_change %}
+                                <li><a class="dropdown-item" href="{% url 'password_change' %}"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        <!-- Reports -->
+                        {% if user.can_access_report %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-bar me-1"></i>Reports
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+                                {% if user.can_access_log_report %}
+                                <li><a class="dropdown-item" href="{% url 'log_report' %}"><i class="fas fa-clipboard-list me-2"></i>Log Report</a></li>
+                                {% endif %}
+                                {% if user.can_access_register %}
+                                <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-book me-2"></i>Register</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <!-- User Menu -->
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>{{ user.get_full_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            {% if perms.dashboard.can_view_password_change %}
+                            <li><a class="dropdown-item" href="{% url 'password_change' %}"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout_view' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">© {% now "Y" %} CDMS. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Alert Container -->
+    <div class="alert-container">
+        <div class="alert alert-success" id="successAlert" style="display: none;">
+            <span class="alert-message"></span>
+        </div>
+        <div class="alert alert-error" id="errorAlert" style="display: none;">
+            <span class="alert-message"></span>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        // Global alert function
+        function showAlert(type, message) {
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            const successMessage = successAlert.querySelector('.alert-message');
+            const errorMessage = errorAlert.querySelector('.alert-message');
+
+            // Hide both alerts first
+            successAlert.style.display = 'none';
+            errorAlert.style.display = 'none';
+
+            if (type === 'success') {
+                successMessage.textContent = message || 'Operation completed successfully!';
+                successAlert.style.display = 'flex';
+                setTimeout(() => {
+                    successAlert.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        successAlert.style.display = 'none';
+                        successAlert.style.animation = 'slideIn 0.3s ease';
+                    }, 300);
+                }, 3000);
+            } else {
+                errorMessage.textContent = message || 'An error occurred.';
+                errorAlert.style.display = 'flex';
+                setTimeout(() => {
+                    errorAlert.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => {
+                        errorAlert.style.display = 'none';
+                        errorAlert.style.animation = 'slideIn 0.3s ease';
+                    }, 300);
+                }, 3000);
+            }
+        }
+
+        // Handle logout
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutLink = document.querySelector('a[href="{% url "logout_view" %}"]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    try {
+                        // Get refresh token from localStorage
+                        const refreshToken = localStorage.getItem('refresh_token');
+                        
+                        // Call API logout endpoint
+                        const response = await fetch('/api/auth/logout/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                            },
+                            body: JSON.stringify({
+                                refresh: refreshToken
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Logout failed');
+                        }
+
+                        // Clear all local storage data
+                        localStorage.clear();
+                        
+                        // Clear session storage
+                        sessionStorage.clear();
+                        
+                        // Function to delete a cookie with all possible attributes
+                        function deleteCookie(name) {
+                            const paths = ['/', '/dashboard/', '/api/'];
+                            const domains = [window.location.hostname, '.' + window.location.hostname];
+                            const secure = window.location.protocol === 'https:';
+                            
+                            // Try different combinations of paths and domains
+                            paths.forEach(path => {
+                                domains.forEach(domain => {
+                                    // Set cookie with all possible attributes
+                                    document.cookie = `${name}=; Path=${path}; Domain=${domain}; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; Secure=${secure}; SameSite=Strict`;
+                                });
+                            });
+                        }
+
+                        // Clear specific cookies
+                        deleteCookie('csrftoken');
+                        deleteCookie('sessionid');
+                        
+                        // Clear any remaining cookies
+                        const cookies = document.cookie.split(";");
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i];
+                            const eqPos = cookie.indexOf("=");
+                            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                            deleteCookie(name);
+                        }
+
+                        // Force reload the page to clear any remaining cookies
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        // Even if API logout fails, clear local data and redirect
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        
+                        // Function to delete a cookie with all possible attributes
+                        function deleteCookie(name) {
+                            const paths = ['/', '/dashboard/', '/api/'];
+                            const domains = [window.location.hostname, '.' + window.location.hostname];
+                            const secure = window.location.protocol === 'https:';
+                            
+                            // Try different combinations of paths and domains
+                            paths.forEach(path => {
+                                domains.forEach(domain => {
+                                    // Set cookie with all possible attributes
+                                    document.cookie = `${name}=; Path=${path}; Domain=${domain}; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0; Secure=${secure}; SameSite=Strict`;
+                                });
+                            });
+                        }
+
+                        // Clear specific cookies
+                        deleteCookie('csrftoken');
+                        deleteCookie('sessionid');
+                        
+                        // Clear any remaining cookies
+                        const cookies = document.cookie.split(";");
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i];
+                            const eqPos = cookie.indexOf("=");
+                            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                            deleteCookie(name);
+                        }
+
+                        // Force reload the page to clear any remaining cookies
+                        window.location.href = '/';
+                    }
+                });
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

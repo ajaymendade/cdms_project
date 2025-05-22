@@ -1,0 +1,233 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Log Report - CDMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Activity Logs</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-primary" onclick="downloadExcel()">
+                            <i class="fas fa-download"></i> Download Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filter Form -->
+                    <form method="get" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>User</label>
+                                    <select name="user" class="form-control">
+                                        <option value="">All Users</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}" {% if selected_user == user.id|stringformat:"i" %}selected{% endif %}>
+                                            {{ user.get_full_name|default:user.username }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Action</label>
+                                    <select name="action" class="form-control">
+                                        <option value="">All Actions</option>
+                                        <option value="view" {% if selected_action == 'view' %}selected{% endif %}>View</option>
+                                        <option value="create" {% if selected_action == 'create' %}selected{% endif %}>Create</option>
+                                        <option value="update" {% if selected_action == 'update' %}selected{% endif %}>Update</option>
+                                        <option value="delete" {% if selected_action == 'delete' %}selected{% endif %}>Delete</option>
+                                        <option value="login" {% if selected_action == 'login' %}selected{% endif %}>Login</option>
+                                        <option value="logout" {% if selected_action == 'logout' %}selected{% endif %}>Logout</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Page</label>
+                                    <select name="page" class="form-control">
+                                        <option value="">All Pages</option>
+                                        {% for page_name in pages %}
+                                        <option value="{{ page_name }}" {% if selected_page == page_name %}selected{% endif %}>
+                                            {{ page_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>Model</label>
+                                    <select name="model" class="form-control">
+                                        <option value="">All Models</option>
+                                        {% for model_name in models %}
+                                        <option value="{{ model_name }}" {% if selected_model == model_name %}selected{% endif %}>
+                                            {{ model_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                                <a href="{% url 'log_report' %}" class="btn btn-secondary">Clear Filters</a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Logs Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp (IST)</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Page</th>
+                                    <th>Model</th>
+                                    <th>Object ID</th>
+                                    <th>IP Address</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>{% timezone "Asia/Kolkata" %}{{ log.created_at|date:"Y-m-d H:i:s" }}{% endtimezone %}</td>
+                                    <td>
+                                        {% if log.user %}
+                                            {{ log.user.get_full_name|default:log.user.username }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if log.action == 'create' %}success{% elif log.action == 'update' %}warning{% elif log.action == 'delete' %}danger{% elif log.action == 'view' %}info{% elif log.action == 'login' %}primary{% elif log.action == 'logout' %}secondary{% elif log.action == 'download' %}success{% endif %}">
+                                            {{ log.action|title }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log.page }}</td>
+                                    <td>{{ log.model_name }}</td>
+                                    <td>{{ log.object_id }}</td>
+                                    <td>
+                                        {% if log.ip_address %}
+                                            <span class="font-monospace">{{ log.ip_address }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailsModal{{ log.id }}">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No logs found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modals -->
+{% for log in logs %}
+<div class="modal fade" id="detailsModal{{ log.id }}" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel{{ log.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel{{ log.id }}">Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Timestamp:</strong> {% timezone "Asia/Kolkata" %}{{ log.created_at|date:"Y-m-d H:i:s" }}{% endtimezone %}</p>
+                        <p><strong>User:</strong> {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}{% else %}System{% endif %}</p>
+                        <p><strong>Action:</strong> {{ log.action|title }}</p>
+                        <p><strong>Page:</strong> {{ log.page }}</p>
+                        <p><strong>Model:</strong> {{ log.model_name }}</p>
+                        <p><strong>Object ID:</strong> {{ log.object_id }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>IP Address:</strong> {% if log.ip_address %}{{ log.ip_address }}{% else %}-{% endif %}</p>
+                        <p><strong>User Agent:</strong> {% if log.user_agent %}{{ log.user_agent }}{% else %}-{% endif %}</p>
+                        <p><strong>Details:</strong></p>
+                        <pre class="bg-light p-3 rounded">{{ log.details|pprint }}</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadExcel() {
+    // Get current URL and add download parameter
+    let url = new URL(window.location.href);
+    url.searchParams.set('download', 'excel');
+    window.location.href = url.toString();
+}
+
+// Initialize all modals
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event listeners to all "View Details" buttons
+    document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-bs-target').substring(1); // Remove the # from the ID
+            const modalElement = document.getElementById(modalId);
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        });
+    });
+
+    // Handle modal hidden event to clean up
+    document.querySelectorAll('.modal').forEach(function(modalElement) {
+        modalElement.addEventListener('hidden.bs.modal', function() {
+            // Remove the modal backdrop
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            // Remove modal-open class from body
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+    });
+});
+</script>
+{% endblock %} 

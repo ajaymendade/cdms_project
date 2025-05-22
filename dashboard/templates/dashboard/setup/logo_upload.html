@@ -1,0 +1,134 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Logo Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .logo-preview {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: contain;
+    }
+    .logo-table img {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: contain;
+    }
+    .status-badge {
+        width: 80px;
+    }
+    .preview-modal .modal-dialog {
+        max-width: 500px;
+    }
+    .preview-modal .modal-body img {
+        max-width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-image me-2"></i>Logo Management</h2>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="logoUploadForm" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <label for="logoName" class="form-label">Logo Name</label>
+                    <input type="text" class="form-control" id="logoName" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="organizationName" class="form-label">Organization Name</label>
+                    <input type="text" class="form-control" id="organizationName" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="logoFile" class="form-label">Logo File</label>
+                    <input type="file" class="form-control" id="logoFile" accept="image/*" required>
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="setActive">
+                        <label class="form-check-label" for="setActive">
+                            Set as Active Logo
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Upload Logo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Preview</h5>
+            <div class="text-center">
+                <img id="logoPreview" class="logo-preview" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Logos Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover logo-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Organization Name</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logosTableBody">
+                        <!-- Logos will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade preview-modal" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Logo Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalPreview" src="" alt="Logo Preview">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard/setup/logo_upload.js' %}"></script>
+<script>
+    // Pass permissions to JavaScript
+    const permissions = {
+        canCreate: {% if user.can_create_logo_upload %}true{% else %}false{% endif %},
+        canUpdate: {% if user.can_update_logo_upload %}true{% else %}false{% endif %},
+        canDelete: {% if user.can_delete_logo_upload %}true{% else %}false{% endif %},
+        canView: {% if user.can_view_logo_upload %}true{% else %}false{% endif %}
+    };
+</script>
+{% endblock %} 

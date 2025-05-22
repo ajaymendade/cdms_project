@@ -1,0 +1,169 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - CDMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Welcome message -->
+    <div class="alert alert-info mb-4">
+        <h4 class="alert-heading">Welcome, {{ user.get_full_name }}!</h4>
+        <p class="mb-0">You are logged in as {{ user.email }}</p>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4">
+        <!-- Users Card -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="fas fa-users text-primary fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Total Users</h6>
+                            <h2 class="card-title mb-0" id="total-users">{{ total_users|default:"0" }}</h2>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small mb-0">
+                        <i class="fas fa-arrow-up text-success me-1"></i>
+                        Active system users
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records Card -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="fas fa-database text-success fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Total Records</h6>
+                            <h2 class="card-title mb-0" id="total-records">{{ total_records|default:"0" }}</h2>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small mb-0">
+                        <i class="fas fa-arrow-up text-success me-1"></i>
+                        Data entries in system
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Branches Card -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-danger bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="fas fa-code-branch text-danger fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Branches</h6>
+                            <h2 class="card-title mb-0" id="total-branches">{{ total_branches|default:"0" }}</h2>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small mb-0">
+                        <i class="fas fa-arrow-up text-success me-1"></i>
+                        Active branches
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Departments Card -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-info bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="fas fa-building text-info fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Departments</h6>
+                            <h2 class="card-title mb-0" id="total-departments">{{ total_departments|default:"0" }}</h2>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small mb-0">
+                        <i class="fas fa-arrow-up text-success me-1"></i>
+                        Active departments
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sub-Departments Card -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm hover-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stats-icon bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="fas fa-sitemap text-warning fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle text-muted mb-1">Sub-Departments</h6>
+                            <h2 class="card-title mb-0" id="total-sub-departments">{{ total_sub_departments|default:"0" }}</h2>
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small mb-0">
+                        <i class="fas fa-arrow-up text-success me-1"></i>
+                        Active sub-departments
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hover-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+
+    .card-subtitle {
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Log the counts to console
+    console.log('Dashboard Counts:');
+    console.log('Total Users:', document.getElementById('total-users').textContent);
+    console.log('Total Records:', document.getElementById('total-records').textContent);
+    console.log('Total Departments:', document.getElementById('total-departments').textContent);
+    console.log('Total Sub-Departments:', document.getElementById('total-sub-departments').textContent);
+    console.log('Total Branches:', document.getElementById('total-branches').textContent);
+});
+</script>
+{% endblock %} 

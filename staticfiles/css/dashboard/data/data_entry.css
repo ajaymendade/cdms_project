@@ -1,0 +1,159 @@
+/* File Upload Styles */
+.file-upload-container {
+    width: 100%;
+}
+
+.file-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.file-upload-area.drag-over {
+    border-color: #0d6efd;
+    background-color: #e9ecef;
+}
+
+.upload-zone {
+    cursor: pointer;
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    color: #6c757d;
+}
+
+.doc-icon {
+    width: 32px;
+    height: 32px;
+    color: #6c757d;
+}
+
+/* Files List Styles */
+.files-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+.file-item:last-child {
+    margin-bottom: 0;
+}
+
+.file-item:hover {
+    background-color: #f8f9fa;
+}
+
+.file-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 1rem;
+    color: #6c757d;
+}
+
+.file-info {
+    flex-grow: 1;
+}
+
+.file-name {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #212529;
+}
+
+.file-size {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.file-remove {
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+    color: #dc3545;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.file-remove:hover {
+    color: #bd2130;
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Button Styles */
+.btn-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 8px;
+}
+
+.alert-info {
+    background-color: #e8f4f8;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 8px;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.card-title {
+    margin-bottom: 0;
+    color: #212529;
+    font-weight: 600;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+    
+    .upload-zone {
+        padding: 1rem !important;
+    }
+    
+    .upload-icon {
+        width: 32px;
+        height: 32px;
+    }
+} 

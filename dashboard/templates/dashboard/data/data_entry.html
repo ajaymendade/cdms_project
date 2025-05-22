@@ -1,0 +1,136 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Data Entry - CDMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard/data/data_entry.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Title -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">Data Entry</h2>
+            <p class="text-muted">Enter new data records into the system</p>
+        </div>
+    </div>
+
+    <!-- Data Entry Form Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Entry Details</h5>
+                </div>
+                <div class="card-body">
+                    <form id="data-entry-form" class="needs-validation" novalidate enctype="multipart/form-data">
+                        <div class="row g-3 mb-4">
+                            <!-- Division/Branch Dropdown -->
+                            <div class="col-md-4">
+                                <label for="division" class="form-label">Division/Branch</label>
+                                <select class="form-select" id="division" name="division" required>
+                                    <option value="" selected disabled>Select Division/Branch</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a division/branch
+                                </div>
+                            </div>
+                            
+                            <!-- Department Dropdown -->
+                            <div class="col-md-4">
+                                <label for="department" class="form-label">Department</label>
+                                <select class="form-select" id="department" name="department" required disabled>
+                                    <option value="" selected disabled>Select Department</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a department
+                                </div>
+                            </div>
+                            
+                            <!-- Sub Department Dropdown -->
+                            <div class="col-md-4">
+                                <label for="sub-department" class="form-label">Sub Department</label>
+                                <select class="form-select" id="sub-department" name="sub-department" required disabled>
+                                    <option value="" selected disabled>Select Sub Department</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a sub department
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dynamic Fields Container -->
+                        <div id="dynamic-fields" class="row g-3 mb-4">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Please select a sub department to load the specific fields
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- File Upload Section -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label for="document-upload" class="form-label">Upload Documents</label>
+                                <div class="file-upload-container">
+                                    <div class="file-upload-area" id="file-upload-area">
+                                        <input type="file" class="d-none" id="document-upload" name="documents" accept="*/*" multiple>
+                                        <div class="upload-zone text-center p-4" id="upload-zone">
+                                            <i class="fas fa-file-plus upload-icon mb-2"></i>
+                                            <h6 class="mb-1">Drag & Drop your files here</h6>
+                                            <p class="text-muted small mb-2">or</p>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" id="browse-btn">Browse Files</button>
+                                            <p class="small text-muted mt-2">All file types are supported</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Document Preview Section -->
+                        <div class="row mb-4" id="document-preview-section" style="display: none;">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Uploaded Files</h6>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" id="remove-all-documents">
+                                            <i class="fas fa-trash-alt me-2"></i> Remove All
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="files-list" class="files-list">
+                                            <!-- Files will be listed here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                {% if can_create_data_entry %}
+                                    <button type="submit" class="btn btn-primary" id="save-btn">
+                                        <i class="fas fa-save me-2"></i> Save Entry
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-primary" id="save-btn" disabled title="You don't have permission to create entries">
+                                        <i class="fas fa-save me-2"></i> Save Entry
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard/data/data_entry.js' %}"></script>
+{% endblock %} 

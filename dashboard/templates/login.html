@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDMS - Login</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="{% static 'fontawesome/css/all.min.css' %}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login/login.css' %}">
+</head>
+<body class="bg-light min-vh-100 d-flex flex-column">
+    <!-- Organization Header -->
+    <header class="bg-white shadow-sm py-3 mb-4">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-center">
+                {% if logo_data %}
+                <img src="data:image/png;base64,{{ logo_data }}" alt="Organization Logo" class="img-fluid me-3" style="max-width: 80px; height: auto;">
+                {% else %}
+                <img src="{% static 'images/logo.png' %}" alt="Organization Logo" class="img-fluid me-3" style="max-width: 80px; height: auto;">
+                {% endif %}
+                <h1 class="h2 mb-0 org-name">{{ organization_name }}</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Container -->
+    <main class="flex-grow-1 d-flex align-items-center py-4">
+    <div class="container">
+        <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-4 p-md-5">
+                            <h2 class="h4 text-center mb-3">Sign in to your account</h2>
+                            <p class="text-muted text-center mb-4">Enter your credentials to access your account</p>
+                    
+                    <div id="login-alert" class="alert alert-danger d-none" role="alert"></div>
+                    
+                    <form id="login-form">
+                        {% csrf_token %}
+                                <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="fas fa-user text-secondary"></i>
+                                </span>
+                                        <input type="text" class="form-control border-start-0" id="username" name="username" 
+                                       placeholder="Enter your username" required autofocus>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="fas fa-lock text-secondary"></i>
+                                </span>
+                                        <input type="password" class="form-control border-start-0" id="password" name="password" 
+                                       placeholder="Enter your password" required>
+                                        <button class="btn btn-light border-start-0" type="button" id="togglePassword">
+                                            <i class="fas fa-eye text-secondary"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                                <button type="submit" class="btn btn-dark w-100 py-2">
+                                    <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                                    Sign In
+                                </button>
+                    </form>
+                        </div>
+                </div>
+                
+                    <div class="text-center text-muted mt-4">
+                        <small>&copy; {% now "Y" %} CDMS. All rights reserved.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    
+    <!-- Custom JS -->
+    <script type="module" src="{% static 'js/login/login.js' %}"></script>
+</body>
+</html>
+

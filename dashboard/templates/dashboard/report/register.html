@@ -1,0 +1,82 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Register - CDMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Record Counts by Branch/Division, Department, and Sub-Department</h3>
+                    <a href="?download=excel" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Download Excel
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Branch/Division</th>
+                                    <th>Department</th>
+                                    <th>Sub-Department</th>
+                                    <th>Number of Records</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for branch_id, branch_data in organized_data.items %}
+                                    {% for dept_id, dept_data in branch_data.departments.items %}
+                                        {% for sub_dept_id, sub_dept_data in dept_data.sub_departments.items %}
+                                            <tr>
+                                                <td>{{ branch_id }} - {{ branch_data.name }}</td>
+                                                <td>{{ dept_id }} - {{ dept_data.name }}</td>
+                                                <td>{{ sub_dept_id }} - {{ sub_dept_data.name }}</td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-primary">{{ sub_dept_data.count }}</span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No records found</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    $('.table').DataTable({
+        "order": [[0, "asc"], [1, "asc"], [2, "asc"]],
+        "pageLength": 25,
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        "language": {
+            "search": "Search:",
+            "lengthMenu": "Show _MENU_ entries per page",
+            "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "infoEmpty": "Showing 0 to 0 of 0 entries",
+            "infoFiltered": "(filtered from _MAX_ total entries)",
+            "zeroRecords": "No matching records found",
+            "paginate": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "previous": "Previous"
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 
