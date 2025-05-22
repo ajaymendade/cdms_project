@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Permission
 from django.utils.translation import gettext_lazy as _
 from .models import (
     User, DivisionBranch, Department, SubDepartment, 
@@ -11,92 +12,137 @@ from .models import (
 class CustomUserAdmin(UserAdmin):
     """Custom admin interface for the User model."""
     
-    list_display = ('email', 'username', 'first_name', 'last_name', 'mobile_number', 'status', 'is_staff', 'date_joined')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'status', 'is_staff')
     list_filter = ('status', 'is_staff', 'is_superuser', 'groups')
-    search_fields = ('email', 'username', 'first_name', 'last_name', 'mobile_number')
-    ordering = ('-date_joined',)
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    ordering = ('username',)
     
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'mobile_number')}),
-        (_('Status'), {'fields': ('status',)}),
-        (_('Permissions'), {
-            'fields': ('user_permissions',),
-            'classes': ('collapse',),
-            'description': _('User permissions for different sections of the application')
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'mobile_number')}),
+        (_('Basic Permissions'), {
+            'fields': ('is_active', 'status', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
-        (_('System Rights'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser'),
+        (_('Data Management'), {
             'classes': ('collapse',),
-            'description': _('System-level permissions')
+            'fields': (
+                'can_access_data',
+                ('can_access_data_entry', 'can_view_data_entry',
+                'can_create_data_entry', 'can_delete_data_entry', 'can_update_data_entry'),
+                ('can_access_data_edit', 'can_view_data_edit', 'can_create_data_edit',
+                'can_delete_data_edit', 'can_update_data_edit'),
+                ('can_access_enquiry', 'can_view_enquiry', 'can_create_enquiry',
+                'can_delete_enquiry', 'can_update_enquiry'),
+            ),
         }),
+        (_('Setup Management'), {
+            'classes': ('collapse',),
+            'fields': (
+                'can_access_setup',
+                ('can_access_department', 'can_view_department',
+                'can_create_department', 'can_delete_department', 'can_update_department'),
+                ('can_access_sub_department', 'can_view_sub_department',
+                'can_create_sub_department', 'can_delete_sub_department',
+                'can_update_sub_department'),
+                ('can_access_division_branch', 'can_view_division_branch',
+                'can_create_division_branch', 'can_delete_division_branch',
+                'can_update_division_branch'),
+                ('can_access_branch_dep_link', 'can_view_branch_dep_link',
+                'can_create_branch_dep_link', 'can_delete_branch_dep_link',
+                'can_update_branch_dep_link'),
+                ('can_access_logo_upload', 'can_view_logo_upload',
+                'can_create_logo_upload', 'can_delete_logo_upload',
+                'can_update_logo_upload'),
+                ('can_access_bulk_upload', 'can_view_bulk_upload',
+                'can_create_bulk_upload', 'can_delete_bulk_upload',
+                'can_update_bulk_upload'),
+            ),
+        }),
+        (_('User Management'), {
+            'classes': ('collapse',),
+            'fields': (
+                'can_access_user',
+                ('can_access_users', 'can_view_users',
+                'can_create_users', 'can_delete_users', 'can_update_users'),
+                ('can_access_user_rights', 'can_view_user_rights',
+                'can_create_user_rights', 'can_delete_user_rights',
+                'can_update_user_rights'),
+                ('can_access_password_change', 'can_view_password_change',
+                'can_create_password_change', 'can_delete_password_change',
+                'can_update_password_change'),
+            ),
+        }),
+        (_('Report Management'), {
+            'classes': ('collapse',),
+            'fields': (
+                'can_access_report',
+                ('can_access_log_report', 'can_view_log_report',
+                'can_create_log_report', 'can_delete_log_report', 'can_update_log_report'),
+                ('can_access_register', 'can_view_register', 'can_create_register',
+                'can_delete_register', 'can_update_register'),
+            ),
+        }),
+        (_('Important dates'), {'fields': ('last_login',)}),
     )
     
-    readonly_fields = ('date_joined', 'last_login')
+    readonly_fields = ('last_login',)
     
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'first_name', 'last_name', 'mobile_number', 'password1', 'password2', 'status'),
+            'fields': ('username', 'email', 'password1', 'password2', 'first_name', 'last_name', 'mobile_number'),
         }),
     )
-    
-    def get_queryset(self, request):
-        """Return a QuerySet of all model instances that can be edited by the admin site."""
-        return super().get_queryset(request)
-    
-    def get_form(self, request, obj=None, **kwargs):
-        """Return a Form class for use in the admin add view."""
-        form = super().get_form(request, obj, **kwargs)
-        if obj is None:  # This is the add form
-            form.base_fields['status'].initial = 'active'
-        return form
 
-    def get_fieldsets(self, request, obj=None):
-        """Return fieldsets for the admin form."""
-        fieldsets = super().get_fieldsets(request, obj)
-        if obj is None:  # This is the add form
-            return self.add_fieldsets
-        return fieldsets
+    class Media:
+        css = {
+            'all': ('admin/css/custom_admin.css',)
+        }
 
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        """Customize the form field for many-to-many relationships."""
-        if db_field.name == "user_permissions":
-            # Get the current section being edited
-            section = request.GET.get('section', '')
-            
-            # Filter permissions based on the section
-            if section == 'crud':
-                kwargs["queryset"] = db_field.remote_field.model.objects.filter(
-                    content_type__app_label='dashboard',
-                    codename__in=['can_view', 'can_edit', 'can_delete', 'can_update']
-                ).order_by('name')
-            elif section == 'menu':
-                kwargs["queryset"] = db_field.remote_field.model.objects.filter(
-                    content_type__app_label='dashboard',
-                    codename__in=[
-                        'can_access_data',
-                        'can_access_setup',
-                        'can_access_user',
-                        'can_access_report'
-                    ]
-                ).order_by('name')
-            elif section == 'pages':
-                kwargs["queryset"] = db_field.remote_field.model.objects.filter(
-                    content_type__app_label='dashboard',
-                    codename__startswith='can_access_',
-                    codename__not__in=[
-                        'can_access_data',
-                        'can_access_setup',
-                        'can_access_user',
-                        'can_access_report'
-                    ]
-                ).order_by('name')
-            else:
-                kwargs["queryset"] = db_field.remote_field.model.objects.filter(
-                    content_type__app_label='dashboard'
-                ).order_by('name')
-        return super().formfield_for_manytomany(db_field, request, **kwargs)
+    def save_model(self, request, obj, form, change):
+        """Override save_model to handle permission hierarchy."""
+        super().save_model(request, obj, form, change)
+        
+        # Define permission hierarchy
+        permission_hierarchy = {
+            'can_access_data': ['can_access_data_entry', 'can_access_data_edit', 'can_access_enquiry'],
+            'can_access_data_entry': ['can_view_data_entry', 'can_create_data_entry', 'can_delete_data_entry', 'can_update_data_entry'],
+            'can_access_data_edit': ['can_view_data_edit', 'can_create_data_edit', 'can_delete_data_edit', 'can_update_data_edit'],
+            'can_access_enquiry': ['can_view_enquiry', 'can_create_enquiry', 'can_delete_enquiry', 'can_update_enquiry'],
+            'can_access_setup': ['can_access_department', 'can_access_sub_department', 'can_access_division_branch', 
+                               'can_access_branch_dep_link', 'can_access_logo_upload', 'can_access_bulk_upload'],
+            'can_access_department': ['can_view_department', 'can_create_department', 'can_delete_department', 'can_update_department'],
+            'can_access_sub_department': ['can_view_sub_department', 'can_create_sub_department', 'can_delete_sub_department', 'can_update_sub_department'],
+            'can_access_division_branch': ['can_view_division_branch', 'can_create_division_branch', 'can_delete_division_branch', 'can_update_division_branch'],
+            'can_access_branch_dep_link': ['can_view_branch_dep_link', 'can_create_branch_dep_link', 'can_delete_branch_dep_link', 'can_update_branch_dep_link'],
+            'can_access_logo_upload': ['can_view_logo_upload', 'can_create_logo_upload', 'can_delete_logo_upload', 'can_update_logo_upload'],
+            'can_access_bulk_upload': ['can_view_bulk_upload', 'can_create_bulk_upload', 'can_delete_bulk_upload', 'can_update_bulk_upload'],
+            'can_access_user': ['can_access_users', 'can_access_user_rights', 'can_access_password_change'],
+            'can_access_users': ['can_view_users', 'can_create_users', 'can_delete_users', 'can_update_users'],
+            'can_access_user_rights': ['can_view_user_rights', 'can_create_user_rights', 'can_delete_user_rights', 'can_update_user_rights'],
+            'can_access_password_change': ['can_view_password_change', 'can_create_password_change', 'can_delete_password_change', 'can_update_password_change'],
+            'can_access_report': ['can_access_log_report', 'can_access_register'],
+            'can_access_log_report': ['can_view_log_report', 'can_create_log_report', 'can_delete_log_report', 'can_update_log_report'],
+            'can_access_register': ['can_view_register', 'can_create_register', 'can_delete_register', 'can_update_register'],
+        }
+        
+        # Update permissions based on hierarchy
+        for field in obj._meta.fields:
+            if field.name.startswith('can_'):
+                if getattr(obj, field.name):
+                    # Set parent permissions
+                    for parent, children in permission_hierarchy.items():
+                        if field.name in children:
+                            setattr(obj, parent, True)
+                    
+                    # Add to user_permissions if it exists in the Permission model
+                    try:
+                        perm = Permission.objects.get(codename=field.name)
+                        obj.user_permissions.add(perm)
+                    except Permission.DoesNotExist:
+                        continue
+        
+        obj.save()
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):

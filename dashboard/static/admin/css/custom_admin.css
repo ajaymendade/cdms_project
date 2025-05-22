@@ -1,0 +1,98 @@
+/* Custom styling for permission checkboxes */
+.field-can_access_data,
+.field-can_access_setup,
+.field-can_access_user,
+.field-can_access_report {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Indent child permissions */
+.field-can_access_data_entry,
+.field-can_access_data_edit,
+.field-can_access_enquiry,
+.field-can_access_department,
+.field-can_access_sub_department,
+.field-can_access_division_branch,
+.field-can_access_branch_dep_link,
+.field-can_access_logo_upload,
+.field-can_access_bulk_upload,
+.field-can_access_users,
+.field-can_access_user_rights,
+.field-can_access_password_change,
+.field-can_access_log_report,
+.field-can_access_register {
+    margin-left: 20px;
+    margin-bottom: 5px;
+}
+
+/* Indent CRUD permissions */
+.field-can_view_data_entry,
+.field-can_create_data_entry,
+.field-can_delete_data_entry,
+.field-can_update_data_entry,
+.field-can_view_data_edit,
+.field-can_create_data_edit,
+.field-can_delete_data_edit,
+.field-can_update_data_edit,
+.field-can_view_enquiry,
+.field-can_create_enquiry,
+.field-can_delete_enquiry,
+.field-can_update_enquiry,
+.field-can_view_department,
+.field-can_create_department,
+.field-can_delete_department,
+.field-can_update_department,
+.field-can_view_sub_department,
+.field-can_create_sub_department,
+.field-can_delete_sub_department,
+.field-can_update_sub_department,
+.field-can_view_division_branch,
+.field-can_create_division_branch,
+.field-can_delete_division_branch,
+.field-can_update_division_branch,
+.field-can_view_branch_dep_link,
+.field-can_create_branch_dep_link,
+.field-can_delete_branch_dep_link,
+.field-can_update_branch_dep_link,
+.field-can_view_logo_upload,
+.field-can_create_logo_upload,
+.field-can_delete_logo_upload,
+.field-can_update_logo_upload,
+.field-can_view_bulk_upload,
+.field-can_create_bulk_upload,
+.field-can_delete_bulk_upload,
+.field-can_update_bulk_upload,
+.field-can_view_users,
+.field-can_create_users,
+.field-can_delete_users,
+.field-can_update_users,
+.field-can_view_user_rights,
+.field-can_create_user_rights,
+.field-can_delete_user_rights,
+.field-can_update_user_rights,
+.field-can_view_password_change,
+.field-can_create_password_change,
+.field-can_delete_password_change,
+.field-can_update_password_change,
+.field-can_view_log_report,
+.field-can_create_log_report,
+.field-can_delete_log_report,
+.field-can_update_log_report,
+.field-can_view_register,
+.field-can_create_register,
+.field-can_delete_register,
+.field-can_update_register {
+    margin-left: 40px;
+    margin-bottom: 2px;
+}
+
+/* Style the checkbox labels */
+.aligned label {
+    font-weight: normal;
+}
+
+/* Add some spacing between sections */
+.module {
+    margin-bottom: 20px;
+} 

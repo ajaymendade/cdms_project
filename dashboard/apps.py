@@ -7,7 +7,6 @@ class DashboardConfig(AppConfig):
 
     def ready(self):
         try:
-            from .create_superadmin import create_superadmin
-            create_superadmin()
+            import dashboard.signals
         except Exception as e:
             print(f"Error in ready method: {str(e)}")
