@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-v)434nk8ppv_ku!nr2l%%cmw#ficno5amv-xl#edks@in3(@!r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['157.245.108.56']
 
 
 # Application definition
@@ -191,6 +191,6 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF settings
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_HTTPONLY = False  # Must be False to allow JavaScript to read the cookie
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']  # Add your domains here
+CSRF_TRUSTED_ORIGINS = ['157.245.108.56']  # Add your domains here
 CSRF_USE_SESSIONS = False
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
