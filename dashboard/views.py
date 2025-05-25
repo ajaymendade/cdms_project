@@ -1569,8 +1569,16 @@ class DataEntryViewSet(viewsets.ModelViewSet):
                 department_id = request.data.get('department')
                 sub_department_id = request.data.get('sub_department')
                 field_values = json.loads(request.data.get('field_values', '{}'))
+                
+                print("Request FILES:", request.FILES)  # Debug log
+                print("Request content type:", request.content_type)  # Debug log
+                print("Request data:", request.data)  # Debug log
+                
+                # Get files from request
                 files = request.FILES.getlist('documents')
-
+                print("Files from getlist:", files)  # Debug log
+                print("Number of files:", len(files))  # Debug log
+                
                 print(f"Received data:")  # Debug log
                 print(f"Branch ID: {branch_id}")
                 print(f"Department ID: {department_id}")
@@ -1598,14 +1606,18 @@ class DataEntryViewSet(viewsets.ModelViewSet):
                 # Handle file uploads
                 for file in files:
                     print(f"Processing file: {file.name} ({file.size} bytes)")  # Debug log
-                    file_obj = DataEntryFile.objects.create(
-                        record=record,
-                        file_name=file.name,
-                        file_type=file.content_type,
-                        file_data=file.read(),
-                        file_size=file.size
-                    )
-                    print(f"File saved with ID: {file_obj.id}")  # Debug log
+                    try:
+                        file_obj = DataEntryFile.objects.create(
+                            record=record,
+                            file_name=file.name,
+                            file_type=file.content_type,
+                            file_data=file.read(),
+                            file_size=file.size
+                        )
+                        print(f"File saved with ID: {file_obj.id}")  # Debug log
+                    except Exception as e:
+                        print(f"Error saving file {file.name}: {str(e)}")  # Debug log
+                        raise
 
                 return Response(serializer.data, status=201)
         except PermissionDenied as e:

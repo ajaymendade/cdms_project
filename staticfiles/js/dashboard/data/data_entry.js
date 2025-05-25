@@ -184,17 +184,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle file selection
     function handleFiles(files) {
+        console.log('handleFiles called with files:', files);
         Array.from(files).forEach(file => {
-            if (!uploadedFiles.has(file.name)) {
+            console.log('Processing file:', file.name, file.size, file.type);
+            if (file instanceof File) {  // Ensure it's a valid File object
                 uploadedFiles.set(file.name, file);
                 addFileToList(file);
+                console.log('File added to uploadedFiles Map');
+            } else {
+                console.log('Invalid file object:', file);
             }
         });
         updateFileList();
+        console.log('Current uploadedFiles Map:', Array.from(uploadedFiles.entries()));
     }
 
     // Add file to list
     function addFileToList(file) {
+        console.log('Adding file to list:', file.name);
         const fileItem = document.createElement('div');
         fileItem.className = 'file-item d-flex justify-content-between align-items-center p-2 border-bottom';
         fileItem.innerHTML = `
@@ -208,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         `;
         fileList.appendChild(fileItem);
+        console.log('File added to list UI');
     }
 
     // Update file list
@@ -222,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Remove file
     window.removeFile = function(fileName) {
+        console.log('Removing file:', fileName);
         uploadedFiles.delete(fileName);
         const fileItems = fileList.getElementsByClassName('file-item');
         Array.from(fileItems).forEach(item => {
@@ -230,10 +239,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         updateFileList();
+        console.log('Files remaining:', Array.from(uploadedFiles.entries()));
     };
 
     // Remove all files
     document.getElementById('remove-all-documents').addEventListener('click', function() {
+        console.log('Removing all files');
         uploadedFiles.clear();
         fileList.innerHTML = '';
         updateFileList();
@@ -241,6 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle file input change
     fileInput.addEventListener('change', function(e) {
+        console.log('File input changed:', this.files);
         if (this.files.length > 0) {
             handleFiles(this.files);
             this.value = ''; // Reset the input to allow selecting the same file again
@@ -261,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
     uploadArea.addEventListener('drop', function(e) {
         e.preventDefault();
         this.classList.remove('dragover');
+        console.log('Files dropped:', e.dataTransfer.files);
         if (e.dataTransfer.files.length > 0) {
             handleFiles(e.dataTransfer.files);
         }
@@ -274,11 +287,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle form submission
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('Form submission started');
         
         // Check if user has create permission
         if (!this.querySelector('#save-btn').disabled) {
             try {
-                const formData = new FormData(this);
+                // Validate form fields
+                if (!validateForm()) {
+                    return;
+                }
+
+                const formData = new FormData();
+                console.log('FormData created');
+                
+                // Add basic form fields
+                formData.append('branch', document.getElementById('division').value);
+                formData.append('department', document.getElementById('department').value);
+                formData.append('sub_department', document.getElementById('sub-department').value);
                 
                 // Add field values
                 const fieldValues = {};
@@ -288,13 +313,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 formData.append('field_values', JSON.stringify(fieldValues));
+                console.log('Field values added to FormData:', fieldValues);
                 
-                // Add files
-                const files = document.querySelectorAll('#files-list .file-item');
-                files.forEach(file => {
-                    formData.append('documents', file.file);
-                });
+                // Add files from uploadedFiles Map
+                console.log('Adding files to FormData...');
+                let filesAdded = 0;
                 
+                // Add files from the Map
+                for (const [fileName, file] of uploadedFiles.entries()) {
+                    if (file instanceof File) {
+                        console.log(`Adding file from Map: ${fileName}`, file);
+                        // Use the same key for all files to allow multiple file uploads
+                        formData.append('documents', file, fileName);
+                        filesAdded++;
+                    }
+                }
+                
+                console.log(`Total files added to FormData: ${filesAdded}`);
+                
+                // Log FormData contents
+                console.log('FormData contents:');
+                for (let pair of formData.entries()) {
+                    if (pair[1] instanceof File) {
+                        console.log('FormData entry:', pair[0], 'File:', pair[1].name, pair[1].size, pair[1].type);
+                    } else {
+                        console.log('FormData entry:', pair[0], pair[1]);
+                    }
+                }
+                
+                // Disable submit button to prevent double submission
+                const submitButton = this.querySelector('#save-btn');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Saving...';
+                
+                console.log('Sending request to server...');
                 const response = await fetch('/api/data-entry/', {
                     method: 'POST',
                     headers: {
@@ -303,10 +355,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: formData
                 });
                 
+                console.log('Server response received:', response.status);
                 if (!response.ok) {
                     const error = await response.json();
+                    console.error('Server error:', error);
                     throw new Error(error.error || 'Failed to create entry');
                 }
+                
+                const responseData = await response.json();
+                console.log('Server response data:', responseData);
                 
                 // Show success message
                 showAlert('success', 'Entry created successfully');
@@ -316,15 +373,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('dynamic-fields').innerHTML = '';
                 document.getElementById('document-preview-section').style.display = 'none';
                 document.getElementById('files-list').innerHTML = '';
+                uploadedFiles.clear(); // Clear the uploaded files Map
+                console.log('Form reset complete');
                 
             } catch (error) {
                 console.error('Error creating entry:', error);
                 showAlert('danger', error.message || 'Failed to create entry');
+            } finally {
+                // Re-enable submit button
+                const submitButton = this.querySelector('#save-btn');
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-save me-2"></i> Save Entry';
             }
         } else {
+            console.log('User does not have create permission');
             showAlert('danger', 'You don\'t have permission to create entries');
         }
     });
+
+    // Form validation
+    function validateForm() {
+        let isValid = true;
+        
+        // Validate required fields
+        const requiredFields = ['division', 'department', 'sub-department'];
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.value) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        // Validate dynamic fields
+        document.querySelectorAll('#dynamic-fields input[required], #dynamic-fields select[required]').forEach(input => {
+            if (!input.value) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            showAlert('danger', 'Please fill in all required fields');
+        }
+        
+        return isValid;
+    }
 
     // Utility functions
     function formatFileSize(bytes) {
