@@ -43,7 +43,7 @@
                                 <li><a class="dropdown-item" href="{% url 'data_entry' %}"><i class="fas fa-file-import me-2"></i>Data Entry</a></li>
                                 {% endif %}
                                 {% if user.can_access_data_edit %}
-                                <li><a class="dropdown-item" href="{% url 'data_edit' %}"><i class="fas fa-edit me-2"></i>Data</a></li>
+                                <li><a class="dropdown-item" href="{% url 'data_edit' %}"><i class="fas fa-edit me-2"></i>Data Enquiry</a></li>
                                 {% endif %}
                                 {% comment %} {% if user.can_access_enquiry %}
                                 <li><a class="dropdown-item" href="{% url 'enquiry' %}"><i class="fas fa-search me-2"></i>Enquiry</a></li>
